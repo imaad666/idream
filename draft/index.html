@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iDream — Draft Preview</title>
+    <link rel="icon" type="image/png" href="../idream_logo.png">
+    <style>
+        @font-face {
+            font-family: 'LED Light';
+            src: url('../LEDLIGHT.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Blue Screen';
+            src: url('../Blue Screen Personal Use.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Varius';
+            src: url('../Varius Multiplex Personal Edition.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        :root {
+            --ink: #080808;
+            --ivory: #f2ece2;
+            --sand: #c9b89a;
+            --crimson: #7a1c24;
+            --steel: #5a7d94;
+            --slate: #1e2a35;
+            --muted: rgba(242, 236, 226, 0.55);
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background: var(--ink);
+            color: var(--ivory);
+        }
+
+        body {
+            font-family: 'Varius', Georgia, serif;
+            overflow-x: hidden;
+            cursor: default;
+        }
+
+        /* draft banner — not for production */
+        .draft-badge {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            padding: 0.45rem 0.75rem;
+            border: 1px solid rgba(242, 236, 226, 0.2);
+            background: rgba(8, 8, 8, 0.75);
+            backdrop-filter: blur(8px);
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        /* grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        section {
+            position: relative;
+        }
+
+        /* ——— HERO ——— */
+        .hero {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            background: radial-gradient(ellipse 80% 60% at 50% 40%, #141210 0%, var(--ink) 70%);
+        }
+
+        .hero-logo-wrap {
+            width: clamp(140px, 22vw, 220px);
+            height: clamp(140px, 22vw, 220px);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .hero-logo-wrap::after {
+            content: '';
+            position: absolute;
+            inset: -20%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(122, 28, 36, 0.15) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .hero-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 40px rgba(90, 125, 148, 0.2));
+        }
+
+        .hero-title {
+            font-family: 'LED Light', sans-serif;
+            font-size: clamp(2.5rem, 8vw, 5.5rem);
+            font-weight: normal;
+            letter-spacing: 0.35em;
+            margin-right: -0.35em;
+            line-height: 1;
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-title .char {
+            display: inline-block;
+        }
+
+        .hero-tagline {
+            font-family: 'Blue Screen', monospace;
+            font-size: clamp(0.75rem, 2vw, 0.95rem);
+            letter-spacing: 0.35em;
+            color: var(--muted);
+            max-width: 28rem;
+            line-height: 1.8;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.3em;
+            color: var(--muted);
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 48px;
+            background: linear-gradient(to bottom, var(--steel), transparent);
+            transform-origin: top;
+        }
+
+        /* ——— VOCABULARY (pinned) ——— */
+        .vocabulary {
+            min-height: 100vh;
+            background: var(--ivory);
+            color: var(--ink);
+        }
+
+        .vocab-inner {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .vocab-label {
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.35em;
+            color: var(--crimson);
+            margin-bottom: 1.5rem;
+        }
+
+        .vocab-word {
+            font-family: 'LED Light', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            letter-spacing: 0.12em;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .vocab-desc {
+            font-size: 1.05rem;
+            line-height: 1.75;
+            color: rgba(8, 8, 8, 0.65);
+            max-width: 26rem;
+        }
+
+        .vocab-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            height: 60vh;
+        }
+
+        .motif-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(122, 28, 36, 0.2);
+        }
+
+        .motif-ring:nth-child(1) { width: 90%; height: 90%; }
+        .motif-ring:nth-child(2) { width: 70%; height: 70%; border-color: rgba(90, 125, 148, 0.25); }
+        .motif-ring:nth-child(3) { width: 50%; height: 50%; }
+
+        .motif-center {
+            width: clamp(100px, 18vw, 160px);
+            position: relative;
+            z-index: 2;
+        }
+
+        .vocab-progress {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .vocab-dot {
+            flex: 1;
+            height: 2px;
+            background: rgba(8, 8, 8, 0.12);
+            overflow: hidden;
+        }
+
+        .vocab-dot-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--crimson);
+        }
+
+        /* ——— WORLDS (horizontal) ——— */
+        .worlds {
+            padding: 8rem 0 6rem;
+            background: var(--ink);
+        }
+
+        .worlds-header {
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            padding: 0 2rem;
+        }
+
+        .worlds-header h2 {
+            font-family: 'LED Light', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            letter-spacing: 0.2em;
+            margin-bottom: 0.75rem;
+        }
+
+        .worlds-header p {
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.25em;
+            color: var(--muted);
+        }
+
+        .worlds-track-wrap {
+            overflow: hidden;
+        }
+
+        .worlds-track {
+            display: flex;
+            gap: 1.5rem;
+            padding: 0 2rem 2rem;
+            width: max-content;
+        }
+
+        .world-card {
+            width: clamp(260px, 32vw, 380px);
+            flex-shrink: 0;
+            position: relative;
+            aspect-ratio: 3 / 4;
+            border-radius: 2px;
+            overflow: hidden;
+            background: var(--slate);
+        }
+
+        .world-card-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(145deg, var(--slate) 0%, #0f1418 100%);
+        }
+
+        .world-card-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.12;
+            background-image:
+                radial-gradient(circle at 30% 40%, var(--crimson) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, var(--steel) 0%, transparent 45%);
+        }
+
+        .world-card-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2rem;
+            background: linear-gradient(to top, rgba(8, 8, 8, 0.85) 0%, transparent 55%);
+        }
+
+        .world-card-num {
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.3em;
+            color: var(--sand);
+            margin-bottom: 0.5rem;
+        }
+
+        .world-card h3 {
+            font-family: 'LED Light', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.5rem;
+        }
+
+        .world-card p {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--muted);
+        }
+
+        /* ——— CRAFT ——— */
+        .craft {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 2rem;
+            background: linear-gradient(180deg, var(--ink) 0%, #12100e 50%, var(--ink) 100%);
+        }
+
+        .craft-inner {
+            max-width: 640px;
+        }
+
+        .craft-stat {
+            font-family: 'LED Light', sans-serif;
+            font-size: clamp(4rem, 12vw, 8rem);
+            letter-spacing: 0.05em;
+            line-height: 1;
+            color: var(--ivory);
+            margin-bottom: 1rem;
+        }
+
+        .craft-stat span {
+            color: var(--crimson);
+        }
+
+        .craft-label {
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.35em;
+            color: var(--muted);
+            margin-bottom: 2rem;
+        }
+
+        .craft-copy {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--muted);
+        }
+
+        /* ——— FOOTER ——— */
+        .footer {
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+            border-top: 1px solid rgba(242, 236, 226, 0.08);
+        }
+
+        .footer-logo {
+            width: 64px;
+            margin: 0 auto 1.5rem;
+            opacity: 0.7;
+        }
+
+        .footer p {
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            color: var(--muted);
+        }
+
+        .footer-note {
+            margin-top: 2rem;
+            font-size: 0.6rem;
+            letter-spacing: 0.15em;
+            opacity: 0.4;
+        }
+
+        @media (max-width: 768px) {
+            .vocab-inner {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding-top: 6rem;
+                padding-bottom: 6rem;
+            }
+
+            .vocab-visual {
+                height: 40vh;
+                order: -1;
+            }
+
+            .vocab-progress {
+                bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="draft-badge">DRAFT PREVIEW</div>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-logo-wrap">
+            <img class="hero-logo" src="../idream_logo.png" alt="iDream">
+        </div>
+        <h1 class="hero-title" aria-label="iDream">
+            <span class="char">i</span><span class="char">D</span><span class="char">r</span><span class="char">e</span><span class="char">a</span><span class="char">m</span>
+        </h1>
+        <p class="hero-tagline">WOVEN IN KASHMIR &nbsp;·&nbsp; CARRIED IN DREAM</p>
+        <div class="scroll-hint">
+            <span>SCROLL</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- VOCABULARY — pinned scroll story -->
+    <section class="vocabulary" id="vocabulary">
+        <div class="vocab-inner" id="vocab-panel">
+            <div class="vocab-text">
+                <p class="vocab-label">THE VOCABULARY</p>
+                <h2 class="vocab-word" id="vocab-word">Chinar</h2>
+                <p class="vocab-desc" id="vocab-desc">The maple leaf of Kashmir — a symbol of autumn gold and enduring craft, stitched into shawls for generations.</p>
+            </div>
+            <div class="vocab-visual">
+                <div class="motif-ring"></div>
+                <div class="motif-ring"></div>
+                <div class="motif-ring"></div>
+                <img class="motif-center" src="../idream_logo.png" alt="" id="vocab-motif">
+            </div>
+            <div class="vocab-progress" id="vocab-progress">
+                <div class="vocab-dot"><div class="vocab-dot-fill"></div></div>
+                <div class="vocab-dot"><div class="vocab-dot-fill"></div></div>
+                <div class="vocab-dot"><div class="vocab-dot-fill"></div></div>
+                <div class="vocab-dot"><div class="vocab-dot-fill"></div></div>
+                <div class="vocab-dot"><div class="vocab-dot-fill"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WORLDS — horizontal scroll -->
+    <section class="worlds" id="worlds">
+        <div class="worlds-header">
+            <h2>THREE WORLDS</h2>
+            <p>WEAR &nbsp;·&nbsp; LIVE &nbsp;·&nbsp; ADORN</p>
+        </div>
+        <div class="worlds-track-wrap">
+            <div class="worlds-track" id="worlds-track">
+                <article class="world-card">
+                    <div class="world-card-bg"></div>
+                    <div class="world-card-pattern"></div>
+                    <div class="world-card-content">
+                        <span class="world-card-num">01</span>
+                        <h3>WEAR</h3>
+                        <p>Pherans, pashmina, suits — garments that carry the valley on your shoulders.</p>
+                    </div>
+                </article>
+                <article class="world-card">
+                    <div class="world-card-bg"></div>
+                    <div class="world-card-pattern" style="opacity:0.15; background-image: radial-gradient(circle at 60% 30%, var(--steel) 0%, transparent 50%), radial-gradient(circle at 20% 80%, var(--sand) 0%, transparent 40%);"></div>
+                    <div class="world-card-content">
+                        <span class="world-card-num">02</span>
+                        <h3>LIVE</h3>
+                        <p>Rugs, cushions, walnut carving — craft that turns a room into a sanctuary.</p>
+                    </div>
+                </article>
+                <article class="world-card">
+                    <div class="world-card-bg"></div>
+                    <div class="world-card-pattern" style="opacity:0.18; background-image: radial-gradient(circle at 50% 50%, var(--crimson) 0%, transparent 55%);"></div>
+                    <div class="world-card-content">
+                        <span class="world-card-num">03</span>
+                        <h3>ADORN</h3>
+                        <p>Lamps, art, decor — objects that hold light the way embroidery holds thread.</p>
+                    </div>
+                </article>
+                <article class="world-card">
+                    <div class="world-card-bg"></div>
+                    <div class="world-card-pattern"></div>
+                    <div class="world-card-content">
+                        <span class="world-card-num">·</span>
+                        <h3>SOON</h3>
+                        <p>The full collection — arriving when the loom finishes its song.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- CRAFT -->
+    <section class="craft" id="craft">
+        <div class="craft-inner">
+            <p class="craft-stat" id="craft-stat">0<span>+</span></p>
+            <p class="craft-label">HOURS IN A SINGLE PIECE</p>
+            <p class="craft-copy">Every thread is a conversation between ancient looms and living hands. iDream is not a product — it is a record of patience, seasons, and mountain light.</p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <img class="footer-logo" src="../idream_logo.png" alt="iDream">
+        <p>iDREAM &nbsp;·&nbsp; KASHMIR</p>
+        <p class="footer-note">draft/preview — open locally, not deployed</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Lenis smooth scroll
+        const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => lenis.raf(time * 1000));
+        gsap.ticker.lagSmoothing(0);
+
+        // ——— Hero entrance ———
+        const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        heroTl
+            .from('.hero-logo-wrap', { scale: 0.6, opacity: 0, duration: 1.4 })
+            .from('.hero-title .char', { y: 60, opacity: 0, duration: 0.9, stagger: 0.08 }, '-=0.8')
+            .from('.hero-tagline', { y: 20, opacity: 0, duration: 0.8 }, '-=0.4')
+            .from('.scroll-hint', { opacity: 0, duration: 0.6 }, '-=0.3');
+
+        gsap.to('.scroll-line', {
+            scaleY: 0.3,
+            duration: 1.2,
+            repeat: -1,
+            yoyo: true,
+            ease: 'power1.inOut'
+        });
+
+        gsap.to('.hero-logo', {
+            y: -8,
+            duration: 3,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut'
+        });
+
+        // ——— Vocabulary pinned section ———
+        const vocabData = [
+            { word: 'Chinar', desc: 'The maple leaf of Kashmir — a symbol of autumn gold and enduring craft, stitched into shawls for generations.' },
+            { word: 'Paisley', desc: 'The Persian buta, reborn in Srinagar — curved teardrops that speak of rivers, gardens, and royal patronage.' },
+            { word: 'Sozni', desc: 'Needlepoint so fine it mirrors on both sides. Florals in silk thread on pashmina — months become years.' },
+            { word: 'Kani', desc: 'Wooden sticks guide each pixel of color through the loom. A coded script called talim becomes fabric.' },
+            { word: 'Tilla', desc: 'Gold and silver thread outlining motifs — opulence woven without shouting, light caught in metal.' }
+        ];
+
+        const vocabWord = document.getElementById('vocab-word');
+        const vocabDesc = document.getElementById('vocab-desc');
+        const vocabMotif = document.getElementById('vocab-motif');
+        const dotFills = document.querySelectorAll('.vocab-dot-fill');
+
+        const vocabTl = gsap.timeline({
+            scrollTrigger: {
+                trigger: '#vocabulary',
+                start: 'top top',
+                end: '+=300%',
+                pin: '#vocab-panel',
+                scrub: 0.8,
+                onUpdate: (self) => {
+                    const idx = Math.min(
+                        vocabData.length - 1,
+                        Math.floor(self.progress * vocabData.length)
+                    );
+                    const item = vocabData[idx];
+                    if (vocabWord.textContent !== item.word) {
+                        vocabWord.textContent = item.word;
+                        vocabDesc.textContent = item.desc;
+                    }
+                    dotFills.forEach((fill, i) => {
+                        const segment = 1 / vocabData.length;
+                        const local = (self.progress - i * segment) / segment;
+                        fill.style.width = `${Math.max(0, Math.min(1, local)) * 100}%`;
+                    });
+                }
+            }
+        });
+
+        vocabData.forEach((_, i) => {
+            vocabTl.to('.motif-ring', {
+                rotate: (i + 1) * 18,
+                scale: 1 - i * 0.04,
+                duration: 1
+            }, i);
+            vocabTl.to('#vocab-motif', {
+                rotate: (i + 1) * -12,
+                scale: 0.92 + i * 0.02,
+                duration: 1
+            }, i);
+        });
+
+        // ——— Worlds horizontal scroll ———
+        const track = document.getElementById('worlds-track');
+        const getScrollAmount = () => -(track.scrollWidth - window.innerWidth + 64);
+
+        gsap.to(track, {
+            x: getScrollAmount,
+            ease: 'none',
+            scrollTrigger: {
+                trigger: '#worlds',
+                start: 'top 20%',
+                end: () => `+=${Math.abs(getScrollAmount())}`,
+                scrub: 0.6,
+                invalidateOnRefresh: true
+            }
+        });
+
+        gsap.from('.world-card', {
+            y: 40,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.12,
+            scrollTrigger: {
+                trigger: '#worlds',
+                start: 'top 80%'
+            }
+        });
+
+        // ——— Craft counter ———
+        const craftObj = { val: 0 };
+        gsap.to(craftObj, {
+            val: 847,
+            duration: 2.5,
+            ease: 'power2.out',
+            scrollTrigger: {
+                trigger: '#craft',
+                start: 'top 70%'
+            },
+            onUpdate: () => {
+                document.getElementById('craft-stat').innerHTML =
+                    Math.round(craftObj.val) + '<span>+</span>';
+            }
+        });
+
+        gsap.from('.craft-copy', {
+            y: 30,
+            opacity: 0,
+            duration: 1,
+            scrollTrigger: {
+                trigger: '#craft',
+                start: 'top 60%'
+            }
+        });
+
+        window.addEventListener('resize', () => ScrollTrigger.refresh());
+    </script>
+</body>
+
+</html>
