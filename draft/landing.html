@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iDream — Landing Draft</title>
+    <link rel="icon" type="image/png" href="../idream_logo.png">
+    <style>
+        @font-face {
+            font-family: 'LED Light';
+            src: url('../LEDLIGHT.otf') format('opentype');
+        }
+
+        @font-face {
+            font-family: 'Blue Screen';
+            src: url('../Blue Screen Personal Use.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Varius';
+            src: url('../Varius Multiplex Personal Edition.ttf') format('truetype');
+        }
+
+        :root {
+            --ink: #080808;
+            --ivory: #f2ece2;
+            --sand: #c9b89a;
+            --crimson: #7a1c24;
+            --steel: #5a7d94;
+            --muted: rgba(8, 8, 8, 0.45);
+            --logo-mask: url('../idream_logo.png');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background: var(--ivory);
+            color: var(--ink);
+        }
+
+        body {
+            font-family: 'Varius', Georgia, serif;
+            overflow-x: hidden;
+        }
+
+        .draft-badge {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 2000;
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            padding: 0.4rem 0.7rem;
+            border: 1px solid rgba(8, 8, 8, 0.12);
+            background: rgba(242, 236, 226, 0.85);
+            backdrop-filter: blur(8px);
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        /* ——— NAV ——— */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 2rem;
+            mix-blend-mode: difference;
+            color: var(--ivory);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'LED Light', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 0.25em;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-logo img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+        }
+
+        .nav-actions a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* ——— SCROLL STAGE ——— */
+        .scroll-stage {
+            position: relative;
+        }
+
+        .panel {
+            position: relative;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        /* ——— HERO: logo cutout reveal ——— */
+        .hero-panel {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        .hero-fill {
+            position: absolute;
+            inset: -20%;
+            background:
+                radial-gradient(ellipse 60% 50% at 30% 40%, rgba(122, 28, 36, 0.9) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 60% at 70% 60%, rgba(90, 125, 148, 0.85) 0%, transparent 50%),
+                radial-gradient(ellipse 80% 80% at 50% 50%, #1a1210 0%, var(--ink) 70%);
+            will-change: transform;
+        }
+
+        .hero-fill::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(242, 236, 226, 0.03) 2px, rgba(242, 236, 226, 0.03) 4px),
+                repeating-linear-gradient(-45deg, transparent, transparent 8px, rgba(201, 184, 154, 0.04) 8px, rgba(201, 184, 154, 0.04) 10px);
+            animation: weave 24s linear infinite;
+        }
+
+        @keyframes weave {
+            from { transform: translate(0, 0); }
+            to { transform: translate(40px, 40px); }
+        }
+
+        .hero-veil {
+            position: absolute;
+            inset: 0;
+            background: var(--ivory);
+            -webkit-mask-image: var(--logo-mask), linear-gradient(#fff, #fff);
+            mask-image: var(--logo-mask), linear-gradient(#fff, #fff);
+            -webkit-mask-size: clamp(220px, 42vmin, 480px), 100% 100%;
+            mask-size: clamp(220px, 42vmin, 480px), 100% 100%;
+            -webkit-mask-position: center center, center;
+            mask-position: center center, center;
+            -webkit-mask-repeat: no-repeat, no-repeat;
+            mask-repeat: no-repeat, no-repeat;
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            will-change: mask-size, -webkit-mask-size, opacity;
+        }
+
+        .cutout-field {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .cutout {
+            position: absolute;
+            width: var(--size, 120px);
+            height: var(--size, 120px);
+            background: var(--ivory);
+            -webkit-mask-image: var(--logo-mask);
+            mask-image: var(--logo-mask);
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            opacity: 0;
+            mix-blend-mode: normal;
+        }
+
+        /* cutouts punch holes — inverted via parent composite */
+        .cutout-hole {
+            position: absolute;
+            width: var(--size, 120px);
+            height: var(--size, 120px);
+            background: transparent;
+            overflow: hidden;
+        }
+
+        .cutout-hole::before {
+            content: '';
+            position: absolute;
+            inset: -200vmax;
+            background: var(--ivory);
+            -webkit-mask-image: var(--logo-mask), linear-gradient(#fff, #fff);
+            mask-image: var(--logo-mask), linear-gradient(#fff, #fff);
+            -webkit-mask-size: 100% 100%, 200vmax 200vmax;
+            mask-size: 100% 100%, 200vmax 200vmax;
+            -webkit-mask-position: center, center;
+            mask-position: center, center;
+            -webkit-mask-repeat: no-repeat, no-repeat;
+            mask-repeat: no-repeat, no-repeat;
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+
+        .hero-copy {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: clamp(3rem, 8vh, 6rem);
+            text-align: center;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .hero-eyebrow {
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.4em;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+
+        .hero-title {
+            font-family: 'LED Light', sans-serif;
+            font-size: clamp(3rem, 10vw, 7rem);
+            letter-spacing: 0.28em;
+            margin-right: -0.28em;
+            line-height: 0.95;
+        }
+
+        .hero-sub {
+            margin-top: 1.25rem;
+            font-size: 1rem;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            max-width: 22rem;
+            line-height: 1.7;
+        }
+
+        .scroll-cue {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.55rem;
+            letter-spacing: 0.35em;
+            color: var(--muted);
+            z-index: 6;
+        }
+
+        /* spacer drives scroll length for hero morph */
+        .hero-scroll {
+            height: 250vh;
+            pointer-events: none;
+        }
+
+        /* ——— STORY PANEL ——— */
+        .story-panel {
+            background: var(--ink);
+            color: var(--ivory);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 2rem;
+        }
+
+        .story-inner {
+            max-width: 900px;
+            text-align: center;
+        }
+
+        .story-line {
+            font-family: 'LED Light', sans-serif;
+            font-size: clamp(2rem, 6vw, 4.5rem);
+            letter-spacing: 0.12em;
+            line-height: 1.2;
+            overflow: hidden;
+        }
+
+        .story-line span {
+            display: inline-block;
+        }
+
+        .story-meta {
+            margin-top: 2.5rem;
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: var(--muted);
+        }
+
+        /* ——— COLLECTIONS ——— */
+        .collections-panel {
+            background: var(--ivory);
+            padding: 6rem 0 8rem;
+        }
+
+        .collections-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 0 2rem;
+        }
+
+        .collections-header h2 {
+            font-family: 'LED Light', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            letter-spacing: 0.2em;
+            margin-bottom: 0.75rem;
+        }
+
+        .collections-header p {
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            color: var(--muted);
+        }
+
+        .orbit-stage {
+            position: relative;
+            height: min(80vh, 700px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .orbit-ring {
+            position: absolute;
+            width: min(72vw, 520px);
+            height: min(72vw, 520px);
+            border-radius: 50%;
+            border: 1px solid rgba(8, 8, 8, 0.08);
+        }
+
+        .orbit-ring:nth-child(2) {
+            width: min(88vw, 640px);
+            height: min(88vw, 640px);
+            border-color: rgba(122, 28, 36, 0.12);
+        }
+
+        .orbit-center {
+            position: relative;
+            z-index: 3;
+            width: clamp(100px, 18vw, 160px);
+            height: clamp(100px, 18vw, 160px);
+            border-radius: 50%;
+            background: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 60px rgba(8, 8, 8, 0.15);
+        }
+
+        .orbit-center img {
+            width: 65%;
+            height: 65%;
+            object-fit: contain;
+        }
+
+        .orbit-item {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: clamp(140px, 22vw, 200px);
+            transform-origin: center center;
+            margin: calc(clamp(140px, 22vw, 200px) / -2);
+        }
+
+        .orbit-card {
+            background: var(--ink);
+            color: var(--ivory);
+            border-radius: 2px;
+            overflow: hidden;
+            aspect-ratio: 3 / 4;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.25rem;
+            box-shadow: 0 12px 40px rgba(8, 8, 8, 0.12);
+            transition: transform 0.4s var(--ease, ease);
+        }
+
+        .orbit-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 30% 30%, rgba(122, 28, 36, 0.35) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(90, 125, 148, 0.3) 0%, transparent 45%);
+        }
+
+        .orbit-card-num {
+            position: relative;
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.55rem;
+            letter-spacing: 0.25em;
+            color: var(--sand);
+            margin-bottom: 0.35rem;
+        }
+
+        .orbit-card h3 {
+            position: relative;
+            font-family: 'LED Light', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 0.15em;
+        }
+
+        .orbit-card p {
+            position: relative;
+            font-size: 0.72rem;
+            line-height: 1.5;
+            color: var(--muted);
+            margin-top: 0.35rem;
+        }
+
+        .orbit-scroll {
+            height: 200vh;
+        }
+
+        .orbit-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* ——— CTA ——— */
+        .cta-panel {
+            min-height: 70vh;
+            background: var(--ink);
+            color: var(--ivory);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .cta-cutout-wrap {
+            position: relative;
+            width: clamp(180px, 30vw, 280px);
+            height: clamp(180px, 30vw, 280px);
+            margin: 0 auto 2rem;
+        }
+
+        .cta-cutout-bg {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle, var(--crimson) 0%, transparent 70%),
+                radial-gradient(circle at 80% 20%, var(--steel) 0%, transparent 50%);
+            animation: pulse 6s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.08); opacity: 1; }
+        }
+
+        .cta-cutout-veil {
+            position: absolute;
+            inset: -100vmax;
+            background: var(--ink);
+            -webkit-mask-image: var(--logo-mask), linear-gradient(#fff, #fff);
+            mask-image: var(--logo-mask), linear-gradient(#fff, #fff);
+            -webkit-mask-size: clamp(180px, 30vw, 280px), 200vmax 200vmax;
+            mask-size: clamp(180px, 30vw, 280px), 200vmax 200vmax;
+            -webkit-mask-position: center center, center;
+            mask-position: center center, center;
+            -webkit-mask-repeat: no-repeat, no-repeat;
+            mask-repeat: no-repeat, no-repeat;
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+
+        .cta-title {
+            font-family: 'LED Light', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            letter-spacing: 0.2em;
+            margin-bottom: 1rem;
+        }
+
+        .cta-copy {
+            font-size: 0.95rem;
+            color: var(--muted);
+            max-width: 24rem;
+            margin: 0 auto 2rem;
+            line-height: 1.7;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            padding: 1rem 2rem;
+            border: 1px solid rgba(242, 236, 226, 0.25);
+            color: var(--ivory);
+            text-decoration: none;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .cta-btn:hover {
+            background: var(--ivory);
+            color: var(--ink);
+        }
+
+        .footer {
+            padding: 2rem;
+            text-align: center;
+            background: var(--ink);
+            border-top: 1px solid rgba(242, 236, 226, 0.06);
+        }
+
+        .footer p {
+            font-family: 'Blue Screen', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.25em;
+            color: var(--muted);
+        }
+
+        @media (max-width: 768px) {
+            .nav { padding: 1rem 1.25rem; }
+            .hero-title { letter-spacing: 0.15em; margin-right: -0.15em; }
+            .orbit-item { width: 120px; margin: -60px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="draft-badge">LANDING DRAFT</div>
+
+    <nav class="nav">
+        <a class="nav-logo" href="#">
+            <img src="../idream_logo.png" alt="">
+            <span>iDREAM</span>
+        </a>
+        <div class="nav-actions">
+            <a href="#">STORE</a>
+            <a href="#">ABOUT</a>
+        </div>
+    </nav>
+
+    <main class="scroll-stage">
+        <!-- HERO: Cash App-style cutout morph -->
+        <section class="hero-scroll" id="hero-scroll">
+            <div class="hero-panel" id="hero-panel">
+                <div class="hero-fill" id="hero-fill"></div>
+                <div class="hero-veil" id="hero-veil"></div>
+                <div class="cutout-field" id="cutout-field"></div>
+                <div class="hero-copy" id="hero-copy">
+                    <p class="hero-eyebrow">KASHMIR CRAFT</p>
+                    <h1 class="hero-title">iDream</h1>
+                    <p class="hero-sub">Garments, decor, and furniture — seen through the eye of the motif.</p>
+                </div>
+                <p class="scroll-cue" id="scroll-cue">SCROLL</p>
+            </div>
+        </section>
+
+        <!-- STORY -->
+        <section class="panel story-panel" id="story">
+            <div class="story-inner">
+                <p class="story-line" id="story-line-1"><span>Woven by hand.</span></p>
+                <p class="story-line" id="story-line-2"><span>Carried in dream.</span></p>
+                <p class="story-meta">SOZNI · KANI · TILLA · PASHMINA</p>
+            </div>
+        </section>
+
+        <!-- ORBIT STORE (circle scroll, ElevenLabs-inspired but ours) -->
+        <section class="orbit-scroll" id="orbit-scroll">
+            <div class="orbit-sticky">
+                <div class="collections-panel" style="padding-top:0;padding-bottom:0;background:transparent;">
+                    <div class="collections-header">
+                        <h2>THE COLLECTION</h2>
+                        <p>DRAG THE CIRCLE · SCROLL TO ROTATE</p>
+                    </div>
+                    <div class="orbit-stage" id="orbit-stage">
+                        <div class="orbit-ring"></div>
+                        <div class="orbit-ring"></div>
+                        <div class="orbit-center">
+                            <img src="../idream_logo.png" alt="iDream">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="panel cta-panel">
+            <div>
+                <div class="cta-cutout-wrap">
+                    <div class="cta-cutout-bg"></div>
+                    <div class="cta-cutout-veil"></div>
+                </div>
+                <h2 class="cta-title">ENTER THE STORE</h2>
+                <p class="cta-copy">The full collection is being woven. Be first when the doors open.</p>
+                <a class="cta-btn" href="#">NOTIFY ME</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>iDREAM · KASHMIR · DRAFT / NOT DEPLOYED</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        const lenis = new Lenis({ lerp: 0.07, smoothWheel: true });
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((t) => lenis.raf(t * 1000));
+        gsap.ticker.lagSmoothing(0);
+
+        const products = [
+            { num: '01', title: 'WEAR', desc: 'Pherans & pashmina' },
+            { num: '02', title: 'LIVE', desc: 'Rugs & carving' },
+            { num: '03', title: 'ADORN', desc: 'Lamps & art' },
+            { num: '04', title: 'SOZNI', desc: 'Hand embroidery' },
+            { num: '05', title: 'KANI', desc: 'Loom-woven' },
+            { num: '06', title: 'TILLA', desc: 'Gold thread' }
+        ];
+
+        const orbitStage = document.getElementById('orbit-stage');
+        const orbitRadius = () => Math.min(window.innerWidth * 0.34, 260);
+
+        products.forEach((p, i) => {
+            const item = document.createElement('div');
+            item.className = 'orbit-item';
+            item.innerHTML = `
+                <article class="orbit-card">
+                    <span class="orbit-card-num">${p.num}</span>
+                    <h3>${p.title}</h3>
+                    <p>${p.desc}</p>
+                </article>`;
+            orbitStage.appendChild(item);
+        });
+
+        const orbitItems = document.querySelectorAll('.orbit-item');
+
+        function layoutOrbit(rotationDeg) {
+            const r = orbitRadius();
+            orbitItems.forEach((el, i) => {
+                const angle = (i / products.length) * 360 + rotationDeg;
+                const rad = angle * (Math.PI / 180);
+                const x = Math.cos(rad) * r;
+                const y = Math.sin(rad) * r;
+                const scale = 0.85 + 0.15 * (0.5 + 0.5 * Math.cos(rad - Math.PI / 2));
+                const z = Math.round(scale * 100);
+                el.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${scale})`;
+                el.style.zIndex = z;
+            });
+        }
+
+        layoutOrbit(0);
+
+        // ——— Floating logo cutouts ———
+        const cutoutField = document.getElementById('cutout-field');
+        const cutoutPositions = [
+            { x: '12%', y: '18%', size: 90, delay: 0 },
+            { x: '78%', y: '22%', size: 110, delay: 0.1 },
+            { x: '85%', y: '68%', size: 75, delay: 0.2 },
+            { x: '8%', y: '72%', size: 100, delay: 0.15 },
+            { x: '50%', y: '8%', size: 70, delay: 0.25 },
+            { x: '22%', y: '48%', size: 55, delay: 0.3 },
+            { x: '68%', y: '52%', size: 65, delay: 0.2 }
+        ];
+
+        cutoutPositions.forEach((pos) => {
+            const hole = document.createElement('div');
+            hole.className = 'cutout-hole';
+            hole.style.cssText = `--size:${pos.size}px; left:${pos.x}; top:${pos.y}; width:${pos.size}px; height:${pos.size}px;`;
+            cutoutField.appendChild(hole);
+        });
+
+        const cutoutHoles = document.querySelectorAll('.cutout-hole');
+
+        // ——— Hero scroll morph (Cash App wand style) ———
+        const heroScroll = document.getElementById('hero-scroll');
+        const heroVeil = document.getElementById('hero-veil');
+        const heroFill = document.getElementById('hero-fill');
+        const heroCopy = document.getElementById('hero-copy');
+        const scrollCue = document.getElementById('scroll-cue');
+
+        ScrollTrigger.create({
+            trigger: heroScroll,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 0.5,
+            onUpdate: (self) => {
+                const p = self.progress;
+                const maskSize = gsap.utils.interpolate(
+                    Math.min(window.innerWidth * 0.42, 480),
+                    Math.min(window.innerWidth * 0.12, 140),
+                    p
+                );
+                heroVeil.style.webkitMaskSize = `${maskSize}px, 100% 100%`;
+                heroVeil.style.maskSize = `${maskSize}px, 100% 100%`;
+                heroVeil.style.opacity = 1 - p * 0.15;
+
+                gsap.set(heroFill, {
+                    scale: 1 + p * 0.25,
+                    rotate: p * 8,
+                    x: p * -40,
+                    y: p * 30
+                });
+
+                gsap.set(heroCopy, {
+                    y: p * -120,
+                    opacity: 1 - p * 1.2
+                });
+
+                gsap.set(scrollCue, { opacity: 1 - p * 3 });
+
+                cutoutHoles.forEach((hole, i) => {
+                    const threshold = cutoutPositions[i].delay + 0.15;
+                    const local = Math.max(0, Math.min(1, (p - threshold) / 0.5));
+                    hole.style.opacity = local;
+                    const drift = (i % 2 === 0 ? 1 : -1) * local * 20;
+                    hole.style.transform = `translateY(${-local * 30}px) rotate(${local * drift}deg)`;
+                });
+            }
+        });
+
+        // ——— Story text reveal ———
+        gsap.from('#story-line-1 span', {
+            y: '110%',
+            duration: 1,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: '#story', start: 'top 70%' }
+        });
+
+        gsap.from('#story-line-2 span', {
+            y: '110%',
+            duration: 1,
+            delay: 0.15,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: '#story', start: 'top 55%' }
+        });
+
+        gsap.from('.story-meta', {
+            opacity: 0,
+            y: 20,
+            duration: 0.8,
+            scrollTrigger: { trigger: '#story', start: 'top 40%' }
+        });
+
+        // ——— Orbit circle scroll ———
+        ScrollTrigger.create({
+            trigger: '#orbit-scroll',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 0.8,
+            onUpdate: (self) => {
+                layoutOrbit(self.progress * 360);
+            }
+        });
+
+        // ——— Theme flip on story enter ———
+        ScrollTrigger.create({
+            trigger: '#story',
+            start: 'top 80%',
+            onEnter: () => { document.documentElement.style.background = 'var(--ink)'; },
+            onLeaveBack: () => { document.documentElement.style.background = 'var(--ivory)'; }
+        });
+
+        window.addEventListener('resize', () => {
+            ScrollTrigger.refresh();
+            layoutOrbit(ScrollTrigger.getById?.('orbit')?.progress * 360 || 0);
+        });
+    </script>
+</body>
+
+</html>
